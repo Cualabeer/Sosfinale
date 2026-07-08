@@ -1,0 +1,362 @@
+<!DOCTYPE html>
+<html lang="en-GB">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="theme-color" content="#00D26A" />
+  <title>SOS Mechanics | Roadside Repairs</title>
+  <style>
+    /* --------------------------
+       🎨 COLOUR PALETTE (matches van & spec)
+    -------------------------- */
+    :root {
+      --bg-light: #F5F7FA;
+      --bg-card: #FFFFFF;
+      --text-main: #1A1A1A;
+      --text-secondary: #4A4A4A;
+      --border: #D0D4DD;
+      --accent-green: #00D26A;
+      --accent-green-hover: #00B85C;
+      --error: #E53935;
+      --success: #2E7D32;
+      --gr: 1.618;
+      --max-width: 420px;
+      --radius: 1rem;
+    }
+
+    /* Reset & base */
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial,
+        sans-serif;
+    }
+
+    html,
+    body {
+      height: 100%;
+    }
+
+    body {
+      background-color: var(--bg-light);
+      color: var(--text-main);
+      min-height: 100vh;
+      padding: calc(1rem * var(--gr)) calc(1rem * var(--gr) * 0.618);
+      line-height: 1.5;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+
+    /* Screen-reader only helper */
+    .sr-only {
+      position: absolute;
+      width: 1px;
+      height: 1px;
+      padding: 0;
+      margin: -1px;
+      overflow: hidden;
+      clip: rect(0, 0, 0, 0);
+      white-space: nowrap;
+      border: 0;
+    }
+
+    /* Mobile container */
+    .mobile-container {
+      width: 100%;
+      max-width: var(--max-width);
+      background: var(--bg-card);
+      border-radius: calc(0.75rem * var(--gr));
+      box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      min-height: 560px;
+    }
+
+    /* Header / Top section */
+    .header-area {
+      padding: calc(1rem * var(--gr) * 0.618);
+      background: linear-gradient(
+        135deg,
+        rgba(0, 210, 106, 0.12),
+        var(--bg-light)
+      );
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+    }
+
+    .header-area h1 {
+      font-size: calc(1.8rem * var(--gr) * 0.618);
+      font-weight: 700;
+      margin-bottom: 0.25rem;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .logo-emoji {
+      font-size: 1.2em;
+      aria-hidden: true;
+    }
+
+    .header-area p {
+      color: var(--text-secondary);
+      font-size: 1rem;
+    }
+
+    .accent-divider {
+      width: 4rem;
+      height: 0.25rem;
+      background: var(--accent-green);
+      border-radius: 2px;
+      margin-top: 0.9rem;
+    }
+
+    /* Form / Bottom section */
+    .form-area {
+      padding: calc(1rem * var(--gr) * 0.618);
+      display: flex;
+      flex-direction: column;
+      gap: calc(0.75rem * var(--gr));
+      flex: 1 1 auto;
+    }
+
+    .form-area h2 {
+      font-size: 1.25rem;
+      font-weight: 600;
+      border-left: 2px solid var(--accent-green);
+      padding-left: 0.75rem;
+      margin-bottom: 0.25rem;
+    }
+
+    label {
+      display: block;
+      font-size: 0.875rem;
+      color: var(--text-secondary);
+      margin-bottom: 0.375rem;
+    }
+
+    input,
+    textarea {
+      width: 100%;
+      padding: 0.875rem 1rem;
+      border: 1px solid var(--border);
+      border-radius: 0.5rem;
+      background: var(--bg-card);
+      color: var(--text-main);
+      font-size: 1rem;
+      transition: border 0.15s ease, box-shadow 0.15s ease;
+    }
+
+    input:focus,
+    textarea:focus {
+      outline: none;
+      border-color: var(--accent-green);
+      box-shadow: 0 0 0 3px rgba(0, 210, 106, 0.12);
+    }
+
+    /* Improve keyboard focus visibility for accessibility */
+    :focus-visible {
+      outline: 3px solid rgba(0, 210, 106, 0.15);
+      outline-offset: 2px;
+    }
+
+    textarea {
+      resize: vertical;
+      min-height: 90px;
+      max-height: 220px;
+    }
+
+    .row {
+      display: flex;
+      gap: 0.75rem;
+    }
+
+    .muted {
+      font-size: 0.875rem;
+      color: var(--text-secondary);
+    }
+
+    button[type="submit"] {
+      margin-top: 0.5rem;
+      padding: 0.95rem;
+      border: none;
+      border-radius: 0.5rem;
+      background: var(--accent-green);
+      color: #ffffff;
+      font-size: 1rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: background 0.2s ease, transform 0.05s ease;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.5rem;
+    }
+
+    button[type="submit"]:hover {
+      background: var(--accent-green-hover);
+    }
+
+    button[type="submit"]:active {
+      transform: translateY(1px);
+    }
+
+    .footer-note {
+      text-align: center;
+      font-size: 0.75rem;
+      color: var(--text-secondary);
+      margin-top: 0.75rem;
+    }
+
+    .status {
+      margin-top: 0.5rem;
+      font-size: 0.95rem;
+    }
+
+    .status.success {
+      color: var(--success);
+    }
+
+    .status.error {
+      color: var(--error);
+    }
+
+    /* Respect reduced motion */
+    @media (prefers-reduced-motion: reduce) {
+      * {
+        transition: none !important;
+      }
+    }
+
+    /* Make layout comfortable on larger screens */
+    @media (min-width: 600px) {
+      .mobile-container {
+        margin: 1rem;
+      }
+    }
+  </style>
+</head>
+<body>
+  <main class="mobile-container" role="main" aria-labelledby="main-title">
+    <header class="header-area">
+      <h1 id="main-title">
+        <span class="logo-emoji" aria-hidden="true">🛠️</span>
+        <span class="sr-only">SOS Mechanics — </span>
+        SOS Mechanics
+      </h1>
+      <p>Roadside Repairs • Diagnostics • Honest Fixes</p>
+      <div class="accent-divider" aria-hidden="true"></div>
+    </header>
+
+    <section class="form-area" aria-labelledby="booking-heading">
+      <h2 id="booking-heading">Book a Mechanic</h2>
+
+      <!-- Use a real action or integrate with an API/backend. -->
+      <form id="booking-form" method="post" action="/api/book" novalidate>
+        <div>
+          <label for="location">Your Location</label>
+          <input
+            id="location"
+            name="location"
+            type="text"
+            placeholder="e.g. London, Kent"
+            autocomplete="address-level2"
+            required
+            aria-required="true"
+          />
+        </div>
+
+        <div>
+          <label for="issue">Vehicle Issue</label>
+          <textarea
+            id="issue"
+            name="issue"
+            placeholder="Describe what’s happening..."
+            required
+            aria-required="true"
+            maxlength="1000"
+          ></textarea>
+        </div>
+
+        <div class="row" aria-hidden="true" style="margin-top:0.25rem;">
+          <small class="muted">📍 Serving London & Kent • 📩 Fast response</small>
+        </div>
+
+        <button type="submit" id="submit-btn">Confirm Booking</button>
+
+        <!-- status message (visible to screen readers via aria-live) -->
+        <div id="form-status" class="status sr-only" role="status" aria-live="polite"></div>
+      </form>
+
+      <p class="footer-note">🍪 Where’s my biscuits?</p>
+    </section>
+  </main>
+
+  <script>
+    // Basic progressive enhancement: send form with fetch and show status.
+    // Replace the endpoint with your real backend or serverless function.
+    (function () {
+      const form = document.getElementById("booking-form");
+      const submitBtn = document.getElementById("submit-btn");
+      const statusEl = document.getElementById("form-status");
+
+      function setStatus(message, type = "") {
+        statusEl.textContent = message;
+        statusEl.className = "status " + (type || "");
+        // Ensure visible to sighted users when non-empty
+        if (message) statusEl.classList.remove("sr-only");
+        else statusEl.classList.add("sr-only");
+      }
+
+      form.addEventListener("submit", async function (e) {
+        e.preventDefault();
+        setStatus("", "");
+        submitBtn.disabled = true;
+        submitBtn.textContent = "Sending...";
+
+        // Simple client-side validation
+        const location = form.location.value.trim();
+        const issue = form.issue.value.trim();
+        if (!location || !issue) {
+          setStatus("Please complete both fields.", "error");
+          submitBtn.disabled = false;
+          submitBtn.textContent = "Confirm Booking";
+          return;
+        }
+
+        try {
+          // Example request - adjust endpoint and method as needed.
+          const resp = await fetch(form.action, {
+            method: form.method || "POST",
+            headers: {
+              "Content-Type": "application/json",
+              Accept: "application/json",
+            },
+            body: JSON.stringify({ location, issue }),
+          });
+
+          if (!resp.ok) {
+            const text = await resp.text().catch(() => resp.statusText);
+            throw new Error(text || "Request failed");
+          }
+
+          setStatus("Booking received — we'll contact you shortly.", "success");
+          form.reset();
+        } catch (err) {
+          setStatus("Could not send booking. Try again later.", "error");
+          console.error("Booking error:", err);
+        } finally {
+          submitBtn.disabled = false;
+          submitBtn.textContent = "Confirm Booking";
+        }
+      });
+    })();
+  </script>
+</body>
+</html>
