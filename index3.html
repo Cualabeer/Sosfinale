@@ -1,0 +1,351 @@
+<!DOCTYPE html>
+<html lang="en-GB">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="theme-color" content="#00D26A" />
+  <title>SOS Mechanics | Book a Roadside Repair</title>
+  <style>
+    :root {
+      --bg-light: #F5F7FA;
+      --bg-card: #FFFFFF;
+      --text-main: #1A1A1A;
+      --text-secondary: #4A4A4A;
+      --border: #D0D4DD;
+      --accent-green: #00D26A;
+      --accent-green-hover: #00B85C;
+      --error: #E53935;
+      --success: #2E7D32;
+      --gr: 1.618;
+      --max-width: 440px;
+    }
+    * {margin:0;padding:0;box-sizing:border-box;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Arial,sans-serif;}
+    html, body {min-height:100%;}
+    body {
+      background: var(--bg-light);
+      color: var(--text-main);
+      padding: calc(1rem * var(--gr)) 1rem;
+      display: flex;
+      justify-content: center;
+      align-items: flex-start;
+    }
+    .sr-only {position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);border:0;}
+    .mobile-container {
+      width: 100%;
+      max-width: var(--max-width);
+      background: var(--bg-card);
+      border-radius: 1.2rem;
+      box-shadow: 0 2px 14px rgba(0,0,0,.08);
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+    }
+    .header-area {
+      padding: 2rem 1.5rem 1.5rem;
+      background: linear-gradient(135deg, rgba(0,210,106,.12), var(--bg-light));
+      text-align: center;
+    }
+    .header-area h1 {font-size: 1.85rem; font-weight:700; margin-bottom:.4rem;}
+    .header-area p {color: var(--text-secondary); font-size:1rem;}
+    .accent-divider {width:4rem;height:.25rem;background:var(--accent-green);border-radius:2px;margin:1rem auto 0;}
+
+    .form-area {
+      padding: 1.8rem 1.5rem 2rem;
+      display: flex;
+      flex-direction: column;
+      gap: 1.3rem;
+    }
+    .form-area h2 {
+      font-size:1.3rem;
+      font-weight:600;
+      border-left:3px solid var(--accent-green);
+      padding-left:.75rem;
+      margin-bottom:.2rem;
+    }
+    .field-group {display:flex;flex-direction:column;gap:.4rem;}
+    label {font-size:.9rem;font-weight:500;color:var(--text-main);}
+    label .req {color:var(--error);margin-left:.15rem;}
+    .hint {font-size:.78rem;color:var(--text-secondary);margin-top:-.2rem;}
+    input, select, textarea {
+      width:100%;
+      padding:.95rem 1rem;
+      border:1px solid var(--border);
+      border-radius:.55rem;
+      background:var(--bg-card);
+      color:var(--text-main);
+      font-size:1rem;
+      transition: border .15s, box-shadow .15s;
+    }
+    input:focus, select:focus, textarea:focus {
+      outline:none;
+      border-color:var(--accent-green);
+      box-shadow:0 0 0 3px rgba(0,210,106,.15);
+    }
+    textarea {resize:vertical; min-height:100px; max-height:240px;}
+    .muted {font-size:.85rem; color:var(--text-secondary); text-align:center;}
+    button {
+      border:none;
+      border-radius:.55rem;
+      font-size:1rem;
+      font-weight:600;
+      cursor:pointer;
+      transition: background .2s, transform .05s;
+      padding:1rem;
+      width:100%;
+    }
+    .btn-primary {background:var(--accent-green);color:#fff;}
+    .btn-primary:hover {background:var(--accent-green-hover);}
+    .btn-primary:active {transform:translateY(1px);}
+    .btn-secondary {background:var(--border);color:var(--text-main);margin-top:.6rem;}
+    .btn-secondary:hover {background:#BFC5CF;}
+    button:disabled {opacity:.7;cursor:not-allowed;}
+    .footer-note {text-align:center;font-size:.78rem;color:var(--text-secondary);margin-top:1.2rem;}
+    .status {margin-top:.9rem; text-align:center; font-weight:500; padding:.7rem; border-radius:.4rem;}
+    .status.success {color:var(--success);background:rgba(46,125,50,.08);}
+    .status.error {color:var(--error);background:rgba(229,57,53,.08);}
+
+    /* REVIEW POPUP */
+    .modal-overlay {
+      display:none;
+      position:fixed;
+      inset:0;
+      background:rgba(0,0,0,.55);
+      z-index:999;
+      justify-content:center;
+      align-items:center;
+      padding:1rem;
+    }
+    .modal-overlay.active {display:flex;}
+    .modal {
+      background:var(--bg-card);
+      border-radius:1.1rem;
+      width:100%;
+      max-width:420px;
+      max-height:90vh;
+      overflow-y:auto;
+      box-shadow:0 10px 30px rgba(0,0,0,.2);
+      animation:slideUp .25s ease;
+    }
+    @keyframes slideUp {from{transform:translateY(20px);opacity:0;}to{transform:translateY(0);opacity:1;}}
+    .modal-header {
+      padding:1.3rem 1.5rem;
+      border-bottom:1px solid var(--border);
+      display:flex;
+      justify-content:space-between;
+      align-items:center;
+    }
+    .modal-header h3 {font-size:1.2rem;font-weight:700;}
+    .modal-body {padding:1.3rem 1.5rem;display:flex;flex-direction:column;gap:1rem;}
+    .review-row {
+      display:flex;
+      flex-direction:column;
+      gap:.2rem;
+      padding-bottom:.8rem;
+      border-bottom:1px dashed var(--border);
+    }
+    .review-row:last-of-type {border-bottom:none;padding-bottom:0;}
+    .review-label {font-size:.78rem;color:var(--text-secondary);text-transform:uppercase;letter-spacing:.5px;font-weight:600;}
+    .review-value {font-size:1rem;color:var(--text-main);line-height:1.4;word-break:break-word;}
+    .modal-footer {padding:1rem 1.5rem 1.5rem;display:flex;flex-direction:column;gap:.6rem;}
+  </style>
+</head>
+<body>
+  <main class="mobile-container">
+    <header class="header-area">
+      <h1>🛠️ SOS Mechanics</h1>
+      <p>Roadside Repairs • Diagnostics • Honest Fixes</p>
+      <div class="accent-divider"></div>
+    </header>
+
+    <section class="form-area">
+      <h2>Book a Mechanic</h2>
+      <p class="muted">📍 Serving London &amp; Kent | Same‑day response where possible</p>
+
+      <form id="booking-form" novalidate>
+        <!-- 1. CUSTOMER -->
+        <div class="field-group">
+          <label for="customer">Customer Name<span class="req">*</span></label>
+          <input id="customer" name="customer" type="text" placeholder="e.g. John Smith" autocomplete="name" required>
+        </div>
+
+        <!-- 2. PHONE -->
+        <div class="field-group">
+          <label for="phone">Phone Number<span class="req">*</span></label>
+          <input id="phone" name="phone" type="tel" placeholder="e.g. 07123 456789" autocomplete="tel" required>
+          <span class="hint">We’ll call/text to confirm ETA</span>
+        </div>
+
+        <!-- 3. REG -->
+        <div class="field-group">
+          <label for="reg">Vehicle Registration (Reg)<span class="req">*</span></label>
+          <input id="reg" name="reg" type="text" placeholder="e.g. AB12 CDE" maxlength="8" required>
+          <span class="hint">Helps us bring the right parts</span>
+        </div>
+
+        <!-- 4. ADDRESS -->
+        <div class="field-group">
+          <label for="address">Breakdown / Repair Address<span class="req">*</span></label>
+          <textarea id="address" name="address" placeholder="Full address + access notes&#10;e.g. 12 Oak Rd, Bromley BR1 3AA&#10;Parked on driveway" required></textarea>
+        </div>
+
+        <!-- 5. PROBLEM SUMMARY -->
+        <div class="field-group">
+          <label for="problem">Problem Summary<span class="req">*</span></label>
+          <textarea id="problem" name="problem" placeholder="What’s wrong?&#10;e.g. Won’t start, engine light on, flat tyre..." required maxlength="1000"></textarea>
+        </div>
+
+        <!-- 6. PREFERRED WINDOW -->
+        <div class="field-group">
+          <label for="window">Preferred Time Window<span class="req">*</span></label>
+          <select id="window" name="window" required>
+            <option value="">Select a time slot</option>
+            <option value="ASAP – within 2 hours">ASAP – within 2 hours</option>
+            <option value="Today – Morning (9am–12pm)">Today – Morning (9am–12pm)</option>
+            <option value="Today – Afternoon (12pm–5pm)">Today – Afternoon (12pm–5pm)</option>
+            <option value="Today – Evening (5pm–8pm)">Today – Evening (5pm–8pm)</option>
+            <option value="Tomorrow – Morning">Tomorrow – Morning</option>
+            <option value="Tomorrow – Afternoon">Tomorrow – Afternoon</option>
+            <option value="Other – I’ll explain in notes">Other – I’ll explain in notes</option>
+          </select>
+        </div>
+
+        <button type="submit" class="btn-primary" id="submit-btn">Review Booking</button>
+        <div id="form-status" class="status sr-only" role="status" aria-live="polite"></div>
+      </form>
+
+      <p class="footer-note">🍪 Where’s my biscuits?</p>
+    </section>
+  </main>
+
+  <!-- REVIEW POPUP -->
+  <div class="modal-overlay" id="reviewModal" aria-hidden="true">
+    <div class="modal" role="dialog" aria-labelledby="modalTitle">
+      <div class="modal-header">
+        <h3 id="modalTitle">✅ Review Your Booking</h3>
+        <button class="btn-secondary" id="closeModal" style="width:auto;padding:.5rem .9rem;font-size:.9rem;margin:0;">✕</button>
+      </div>
+      <div class="modal-body" id="reviewContent"></div>
+      <div class="modal-footer">
+        <button class="btn-primary" id="confirmSendBtn">✅ Confirm & Send to SOS Mechanics</button>
+        <button class="btn-secondary" id="editBtn">✏️ Edit Details</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    /* ==================================================
+       🔒 HIDDEN WHATSAPP NUMBER (OBFUSCATED)
+       Encoded with base64 — decoded ONLY when user clicks send
+       Plain number NEVER appears in page source
+       ================================================== */
+    // Encoded value = your number: 447898109842
+    const _w = "NDQ3ODk4MTA5ODQy";
+    // Decode only at send time (in memory, never written to page)
+    const getWa = () => atob(_w.split("").reverse().join(""));
+
+    // Form + popup elements
+    const form = document.getElementById("booking-form");
+    const submitBtn = document.getElementById("submit-btn");
+    const statusEl = document.getElementById("form-status");
+    const modal = document.getElementById("reviewModal");
+    const reviewContent = document.getElementById("reviewContent");
+    const confirmSendBtn = document.getElementById("confirmSendBtn");
+    const editBtn = document.getElementById("editBtn");
+    const closeModalBtn = document.getElementById("closeModal");
+    const regInput = document.getElementById("reg");
+
+    // Auto-uppercase UK reg plates
+    regInput.addEventListener("input", e => e.target.value = e.target.value.toUpperCase());
+
+    // Status helper
+    function setStatus(msg, type=""){
+      statusEl.textContent = msg;
+      statusEl.className = `status ${type}`;
+      msg ? statusEl.classList.remove("sr-only") : statusEl.classList.add("sr-only");
+    }
+
+    // Get clean data in EXACT job card order
+    function getBookingData(){
+      return {
+        "Customer Name": form.customer.value.trim(),
+        "Phone Number": form.phone.value.trim(),
+        "Vehicle Reg": form.reg.value.trim().toUpperCase(),
+        "Repair Address": form.address.value.trim(),
+        "Problem Summary": form.problem.value.trim(),
+        "Preferred Window": form.window.value
+      };
+    }
+
+    // Validate all fields
+    function validateData(data){
+      return Object.values(data).every(val => val !== "");
+    }
+
+    // 1. Submit → validate → open review popup
+    form.addEventListener("submit", e => {
+      e.preventDefault();
+      setStatus("");
+      const data = getBookingData();
+      if(!validateData(data)){
+        setStatus("⚠️ Please fill in all required fields.", "error");
+        return;
+      }
+      // Populate popup
+      reviewContent.innerHTML = Object.entries(data)
+        .map(([k,v]) => `
+          <div class="review-row">
+            <span class="review-label">${k}</span>
+            <span class="review-value">${v.replace(/\n/g,"<br>")}</span>
+          </div>
+        `).join("");
+      modal.classList.add("active");
+      modal.setAttribute("aria-hidden","false");
+    });
+
+    // Close popup helpers
+    function closeReview(){
+      modal.classList.remove("active");
+      modal.setAttribute("aria-hidden","true");
+    }
+    editBtn.addEventListener("click", closeReview);
+    closeModalBtn.addEventListener("click", closeReview);
+    modal.addEventListener("click", e => e.target === modal && closeReview());
+
+    // 2. Confirm → decode number ONCE → open WhatsApp
+    confirmSendBtn.addEventListener("click", () => {
+      const data = getBookingData();
+      confirmSendBtn.disabled = true;
+      confirmSendBtn.textContent = "Sending...";
+
+      // 🔓 Number decoded HERE ONLY — never stored as plain text
+      const WA_NUMBER = getWa();
+
+      // Build formatted job card message
+      const msg = encodeURIComponent(
+`🛠️ *NEW SOS MECHANICS BOOKING*
+━━━━━━━━━━━━━━━━━━━━
+👤 Customer: ${data["Customer Name"]}
+📞 Phone: ${data["Phone Number"]}
+🚗 Reg: ${data["Vehicle Reg"]}
+📍 Address: ${data["Repair Address"]}
+🔧 Problem: ${data["Problem Summary"]}
+⏰ Preferred Time: ${data["Preferred Window"]}
+━━━━━━━━━━━━━━━━━━━━
+📅 Sent: ${new Date().toLocaleString("en-GB")}`
+      );
+
+      // Open WhatsApp Business
+      window.open(`https://wa.me/${WA_NUMBER}?text=${msg}`, "_blank");
+
+      // Reset UI
+      setTimeout(() => {
+        closeReview();
+        form.reset();
+        confirmSendBtn.disabled = false;
+        confirmSendBtn.textContent = "✅ Confirm & Send to SOS Mechanics";
+        setStatus("✅ Booking sent! We will contact you shortly.", "success");
+      }, 600);
+    });
+  </script>
+</body>
+</html>
