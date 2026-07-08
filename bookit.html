@@ -1,0 +1,399 @@
+<!DOCTYPE html>
+<html lang="en-GB">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0" />
+  <meta name="theme-color" content="#00D26A" />
+  <title>SOS Mechanics | Book in Seconds</title>
+  <style>
+    :root {
+      --bg-light: #F5F7FA;
+      --bg-card: #FFFFFF;
+      --text-main: #1A1A1A;
+      --text-secondary: #4A4A4A;
+      --border: #D0D4DD;
+      --accent-green: #00D26A;
+      --accent-green-hover: #00B85C;
+      --error: #E53935;
+      --success: #2E7D32;
+      --max-width: 440px;
+    }
+    * {margin: 0; padding: 0; box-sizing: border-box; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif;}
+    html, body {min-height: 100%; background: var(--bg-light);}
+    body {
+      color: var(--text-main);
+      padding: 1.5rem 1rem;
+      display: flex;
+      justify-content: center;
+      align-items: flex-start;
+    }
+    .sr-only {position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0,0,0,0); border: 0;}
+    .mobile-container {
+      width: 100%;
+      max-width: var(--max-width);
+      background: var(--bg-card);
+      border-radius: 1.2rem;
+      box-shadow: 0 2px 14px rgba(0,0,0,.08);
+      overflow: hidden;
+    }
+
+    /* --- LOCATION WELCOME SCREEN --- */
+    #location-screen {
+      padding: 3rem 1.5rem;
+      text-align: center;
+      display: flex;
+      flex-direction: column;
+      gap: 1.5rem;
+    }
+    #location-screen h2 {
+      font-size: 1.5rem;
+      color: var(--accent-green);
+    }
+    #location-screen p {
+      font-size: 1rem;
+      line-height: 1.6;
+      color: #444;
+    }
+    #locate-main-btn {
+      padding: 1.1rem;
+      font-size: 1.1rem;
+      font-weight: 600;
+      background: var(--accent-green);
+      color: #fff;
+      border: none;
+      border-radius: 0.7rem;
+      box-shadow: 0 4px 12px rgba(0,210,106,0.25);
+      transition: background 0.2s;
+    }
+    #locate-main-btn:disabled {
+      opacity: 0.65;
+      cursor: wait;
+    }
+
+    /* --- BOOKING FORM (HIDDEN UNTIL LOCATION READY) --- */
+    #booking-form-container {
+      display: none;
+    }
+    .header-area {
+      padding: 1.5rem 1.2rem;
+      background: linear-gradient(135deg, rgba(0,210,106,.12), var(--bg-light));
+      text-align: center;
+    }
+    .header-area h1 {font-size: 1.6rem; font-weight: 700; margin-bottom: .3rem;}
+    .header-area p {color: var(--text-secondary); font-size: .95rem;}
+    .accent-divider {width: 3.5rem; height: .22rem; background: var(--accent-green); border-radius: 2px; margin: .8rem auto 0;}
+    .form-area {padding: 1.5rem 1.2rem; display: flex; flex-direction: column; gap: 1.1rem;}
+    .field-group {display: flex; flex-direction: column; gap: .4rem;}
+    label {font-size: .9rem; font-weight: 500; color: var(--text-main);}
+    label .req {color: var(--error); margin-left: .15rem;}
+    input, select {
+      width: 100%; padding: .9rem 1rem; border: 1px solid var(--border);
+      border-radius: .5rem; background: var(--bg-card); color: var(--text-main); font-size: 1rem;
+    }
+    input:read-only {background: #f8faf9; color: #222;}
+    input:focus, select:focus {
+      outline: none; border-color: var(--accent-green); box-shadow: 0 0 0 3px rgba(0,210,106,.15);
+    }
+    button {border: none; border-radius: .5rem; font-size: 1rem; font-weight: 600; cursor: pointer; padding: .9rem; width: 100%;}
+    .btn-primary {background: var(--accent-green); color: #fff;}
+    .btn-primary:hover:not(:disabled) {background: var(--accent-green-hover);}
+    .btn-secondary {background: var(--border); color: var(--text-main); margin-top: .6rem;}
+    .status {margin-top: .9rem; text-align: center; font-weight: 500; padding: .7rem; border-radius: .4rem; font-size: .95rem;}
+    .status.success {color: var(--success); background: rgba(46,125,50,.08);}
+    .status.error {color: var(--error); background: rgba(229,57,53,.08);}
+
+    /* --- REVIEW MODAL - ONLY DIMS WHEN OPEN --- */
+    .modal-overlay {
+      display: none; position: fixed; inset: 0; background: rgba(0,0,0,.6); z-index: 999;
+      justify-content: center; align-items: center; padding: 1rem;
+    }
+    .modal-overlay.active {display: flex;}
+    .modal {
+      background: #fff; border-radius: 1rem; width: 100%; max-width: 400px;
+      max-height: calc(100vh - 3rem);
+      display: flex; flex-direction: column;
+      box-shadow: 0 12px 35px rgba(0,0,0,.25);
+    }
+    .modal-header {
+      padding: 1.1rem 1.2rem; border-bottom: 1px solid var(--border);
+      display: flex; justify-content: space-between; align-items: center;
+      flex-shrink: 0;
+    }
+    .modal-header h3 {font-size: 1.15rem; font-weight: 700;}
+    .modal-body {
+      padding: 1.1rem 1.2rem;
+      overflow-y: auto;
+      flex: 1;
+    }
+    .review-row {
+      display: flex; flex-direction: column; gap: .25rem; padding-bottom: .8rem;
+      border-bottom: 1px dashed var(--border); margin-bottom: .8rem;
+    }
+    .review-row:last-child {border-bottom: none; padding-bottom: 0; margin-bottom: 0;}
+    .review-label {font-size: .78rem; color: var(--text-secondary); text-transform: uppercase; letter-spacing: .5px; font-weight: 600;}
+    .review-value {font-size: .98rem; color: var(--text-main); line-height: 1.4; word-break: break-word;}
+    .modal-footer {
+      padding: 1.1rem 1.2rem 1.3rem;
+      display: flex; flex-direction: column; gap: .7rem;
+      flex-shrink: 0;
+    }
+  </style>
+</head>
+<body>
+  <main class="mobile-container">
+
+    <!-- 📍 FIRST SCREEN: LOCATION ONLY -->
+    <div id="location-screen">
+      <h2>👋 Welcome to SOS Mechanics</h2>
+      <p><strong>Location is required first</strong> — this lets us find you even if you don’t know your exact address. Please allow access when asked.</p>
+      <button type="button" id="locate-main-btn">📍 Get My Location & Continue</button>
+      <div id="location-status" class="status sr-only"></div>
+    </div>
+
+    <!-- 📝 BOOKING FORM - ONLY SHOWS AFTER LOCATION IS SUCCESSFUL -->
+    <div id="booking-form-container">
+      <header class="header-area">
+        <h1>🛠️ SOS Mechanics</h1>
+        <p>Book in under 20 seconds — roadside repairs</p>
+        <div class="accent-divider"></div>
+      </header>
+
+      <section class="form-area">
+        <h2>Quick Booking</h2>
+        <form id="booking-form" novalidate>
+          <div class="field-group">
+            <label for="customer">Customer Name<span class="req">*</span></label>
+            <input id="customer" type="text" placeholder="e.g. John Smith" autocomplete="name" required>
+          </div>
+          <div class="field-group">
+            <label for="phone">Phone Number<span class="req">*</span></label>
+            <input id="phone" type="tel" placeholder="e.g. 07123 456789" autocomplete="tel" required>
+          </div>
+          <div class="field-group">
+            <label for="reg">Vehicle Reg<span class="req">*</span></label>
+            <input id="reg" type="text" placeholder="e.g. AB12 CDE" maxlength="8" required style="text-transform: uppercase;">
+          </div>
+          <div class="field-group">
+            <label for="address">Your Location<span class="req">*</span></label>
+            <input id="address" type="text" readonly required placeholder="Auto‑filled from GPS">
+          </div>
+          <div class="field-group">
+            <label for="problem">Vehicle Problem<span class="req">*</span></label>
+            <select id="problem" required>
+              <option value="">Select issue</option>
+              <option value="Won’t start / flat battery">Won’t start / flat battery</option>
+              <option value="Flat tyre / puncture">Flat tyre / puncture</option>
+              <option value="Engine warning light">Engine warning light</option>
+              <option value="Overheating / cooling issue">Overheating / cooling issue</option>
+              <option value="Alternator / charging fault">Alternator / charging fault</option>
+              <option value="Starter motor problem">Starter motor problem</option>
+              <option value="Brakes / handbrake issue">Brakes / handbrake issue</option>
+              <option value="Clutch / gearbox fault">Clutch / gearbox fault</option>
+              <option value="Exhaust / emissions issue">Exhaust / emissions issue</option>
+              <option value="Fuel / injection problem">Fuel / injection problem</option>
+              <option value="Electrical / lights / battery">Electrical / lights / battery</option>
+              <option value="Lock / key / immobiliser">Lock / key / immobiliser</option>
+              <option value="Oil leak / fluid loss">Oil leak / fluid loss</option>
+              <option value="Suspension / steering">Suspension / steering</option>
+              <option value="Other / unknown issue">Other / unknown issue</option>
+            </select>
+          </div>
+          <div class="field-group">
+            <label for="window">Preferred Time<span class="req">*</span></label>
+            <select id="window" required>
+              <option value="">Choose time</option>
+              <option value="ASAP – within 2 hours">ASAP – within 2 hours</option>
+              <option value="Today Morning (9am–12pm)">Today Morning (9am–12pm)</option>
+              <option value="Today Afternoon (12pm–5pm)">Today Afternoon (12pm–5pm)</option>
+              <option value="Tomorrow Morning">Tomorrow Morning</option>
+              <option value="Tomorrow Afternoon">Tomorrow Afternoon</option>
+            </select>
+          </div>
+
+          <button type="submit" class="btn-primary" id="submit-btn">Review & Send Booking</button>
+          <div id="form-status" class="status sr-only" role="status" aria-live="polite"></div>
+        </form>
+      </section>
+    </div>
+
+    <!-- ✅ REVIEW MODAL -->
+    <div class="modal-overlay" id="reviewModal" aria-hidden="true">
+      <div class="modal" role="dialog">
+        <div class="modal-header">
+          <h3>✅ Confirm Booking</h3>
+          <button type="button" class="btn-secondary" id="closeModal" style="width: auto; padding: .5rem .8rem; font-size: .9rem; margin: 0;">✕</button>
+        </div>
+        <div class="modal-body" id="reviewContent"></div>
+        <div class="modal-footer">
+          <button type="button" class="btn-primary" id="confirmSendBtn">✅ Send via WhatsApp</button>
+          <button type="button" class="btn-secondary" id="editBtn">✏️ Edit Details</button>
+        </div>
+      </div>
+    </div>
+
+  </main>
+
+  <script>
+    // 🔒 Hidden WhatsApp number — no + sign
+    const getWaNumber = () => ["44","7898","1098","42"].join("");
+
+    const locateMainBtn = document.getElementById("locate-main-btn");
+    const locationScreen = document.getElementById("location-screen");
+    const bookingFormContainer = document.getElementById("booking-form-container");
+    const locationStatus = document.getElementById("location-status");
+    const addressInput = document.getElementById("address");
+    const form = document.getElementById("booking-form");
+    const statusEl = document.getElementById("form-status");
+    const modal = document.getElementById("reviewModal");
+    const reviewContent = document.getElementById("reviewContent");
+    const confirmSendBtn = document.getElementById("confirmSendBtn");
+    const editBtn = document.getElementById("editBtn");
+    const closeModal = document.getElementById("closeModal");
+
+    // Store location & time data
+    let bookingMeta = {
+      timestamp: "",
+      lat: "",
+      lon: "",
+      address: "",
+      mapsLink: ""
+    };
+
+    function setStatus(el, msg, type = "") {
+      el.textContent = msg;
+      el.className = `status ${type}`;
+      el.classList.remove("sr-only");
+    }
+
+    // Convert GPS to readable UK address
+    async function getReadableAddress(lat, lon) {
+      try {
+        const res = await fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lon}&zoom=17&addressdetails=1&accept-language=en-GB`);
+        const data = await res.json();
+        const a = data.address || {};
+        const parts = [a.road, a.village || a.town || a.city || a.county, a.postcode].filter(Boolean);
+        return parts.join(", ") || "Nearby road / motorway / layby";
+      } catch {
+        return "GPS location recorded — exact address unknown";
+      }
+    }
+
+    // Get location — only proceeds if successful
+    async function getLocation() {
+      if (!("geolocation" in navigator)) {
+        setStatus(locationStatus, "❌ Location not supported on this device — cannot book.", "error");
+        return;
+      }
+
+      locateMainBtn.disabled = true;
+      locateMainBtn.textContent = "Getting location... Please ALLOW access";
+      setStatus(locationStatus, "");
+
+      navigator.geolocation.getCurrentPosition(
+        async (position) => {
+          const lat = position.coords.latitude.toFixed(6);
+          const lon = position.coords.longitude.toFixed(6);
+          const address = await getReadableAddress(lat, lon);
+
+          bookingMeta = {
+            timestamp: new Date().toLocaleString("en-GB", { timeZone: "Europe/London" }),
+            lat,
+            lon,
+            address,
+            mapsLink: `https://www.google.com/maps?q=${lat},${lon}`
+          };
+
+          addressInput.value = address;
+          locationScreen.style.display = "none";
+          bookingFormContainer.style.display = "block";
+        },
+        (error) => {
+          let reason = "Please ALLOW location access to continue booking.";
+          if (error.code === 2) reason = "Location unavailable — check GPS/signal and try again.";
+          setStatus(locationStatus, `❌ ${reason}`, "error");
+          locateMainBtn.disabled = false;
+          locateMainBtn.textContent = "📍 Get My Location & Continue";
+        },
+        { enableHighAccuracy: true, timeout: 12000, maximumAge: 0 }
+      );
+    }
+
+    locateMainBtn.addEventListener("click", getLocation);
+
+    function getBookingData() {
+      return {
+        "Customer": form.customer.value.trim(),
+        "Phone": form.phone.value.trim(),
+        "Reg": form.reg.value.trim().toUpperCase(),
+        "Location": bookingMeta.address,
+        "Problem": form.problem.value,
+        "Preferred Time": form.window.value,
+        "🕒 Timestamp": bookingMeta.timestamp,
+        "🌍 GPS Coordinates": `${bookingMeta.lat}, ${bookingMeta.lon}`,
+        "🗺️ Open in Google Maps": bookingMeta.mapsLink
+      };
+    }
+
+    function validate(data) {
+      return Object.values(data).every(v => v !== "");
+    }
+
+    form.addEventListener("submit", e => {
+      e.preventDefault();
+      setStatus(statusEl, "");
+      const data = getBookingData();
+      if (!validate(data)) {
+        setStatus(statusEl, "⚠️ Fill all required fields.", "error");
+        return;
+      }
+      reviewContent.innerHTML = Object.entries(data)
+        .map(([k, v]) => `<div class="review-row"><span class="review-label">${k}</span><span class="review-value">${v}</span></div>`)
+        .join("");
+      modal.classList.add("active");
+    });
+
+    function closeModalFn() {
+      modal.classList.remove("active");
+    }
+    editBtn.addEventListener("click", closeModalFn);
+    closeModal.addEventListener("click", closeModalFn);
+    modal.addEventListener("click", e => {
+      if (e.target === modal) closeModalFn();
+    });
+
+    confirmSendBtn.addEventListener("click", () => {
+      const data = getBookingData();
+      confirmSendBtn.disabled = true;
+      confirmSendBtn.textContent = "Sending...";
+
+      const WA_NUMBER = getWaNumber();
+      const message = encodeURIComponent(
+`🛠️ *NEW SOS MECHANICS BOOKING*
+━━━━━━━━━━━━━━━━━━━━
+👤 Customer: ${data.Customer}
+📞 Phone: ${data.Phone}
+🚗 Reg: ${data.Reg}
+📍 Location: ${data.Location}
+🔧 Issue: ${data.Problem}
+⏰ Time: ${data["Preferred Time"]}
+🕒 Timestamp: ${data["🕒 Timestamp"]}
+🌍 GPS: ${data["🌍 GPS Coordinates"]}
+🗺️ Map: ${data["🗺️ Open in Google Maps"]}
+━━━━━━━━━━━━━━━━━━━━`
+      );
+
+      window.open(`https://wa.me/${WA_NUMBER}?text=${message}`, "_blank");
+
+      setTimeout(() => {
+        closeModalFn();
+        form.reset();
+        confirmSendBtn.disabled = false;
+        confirmSendBtn.textContent = "✅ Send via WhatsApp";
+        setStatus(statusEl, "✅ Booking sent! We’ll call you shortly.", "success");
+        // Reset for next booking
+        bookingMeta = { timestamp: "", lat: "", lon: "", address: "", mapsLink: "" };
+      }, 600);
+    });
+  </script>
+</body>
+</html>
