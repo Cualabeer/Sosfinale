@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="en-GB">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="theme-color" content="#00D26A" />
+  <title>SOS Mechanics | Roadside Repairs</title>
+  <style>
+    :root {
+      --bg-light: #F5F7FA;
+      --bg-card: #FFFFFF;
+      --text-main: #1A1A1A;
+      --text-secondary: #4A4A4A;
+      --border: #D0D4DD;
+      --accent-green: #00D26A;
+      --accent-green-hover: #00B85C;
+      --error: #E53935;
+      --success: #2E7D32;
+      --gr: 1.618;
+      --max-width: 420px;
+    }
+    * {margin:0;padding:0;box-sizing:border-box;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Arial,sans-serif;}
+    html, body {min-height:100%;}
+    body {
+      background: var(--bg-light);
+      color: var(--text-main);
+      padding: calc(1rem * var(--gr)) 1rem;
+      display: flex;
+      justify-content: center;
+      align-items: flex-start;
+    }
+    .sr-only {position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);border:0;}
+    .mobile-container {
+      width: 100%;
+      max-width: var(--max-width);
+      background: var(--bg-card);
+      border-radius: 1.2rem;
+      box-shadow: 0 2px 12px rgba(0,0,0,.08);
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+    }
+    .header-area {
+      padding: 2rem 1.5rem;
+      background: linear-gradient(135deg, rgba(0,210,106,.12), var(--bg-light));
+      text-align: center;
+    }
+    .header-area h1 {font-size: 1.8rem; font-weight:700; margin-bottom:.5rem;}
+    .header-area p {color: var(--text-secondary); font-size:1rem;}
+    .accent-divider {width:4rem;height:.25rem;background:var(--accent-green);border-radius:2px;margin:1rem auto 0;}
+
+    .form-area {
+      padding: 1.8rem 1.5rem;
+      display: flex;
+      flex-direction: column;
+      gap: 1.4rem;
+    }
+    .form-area h2 {
+      font-size:1.25rem;
+      font-weight:600;
+      border-left:2px solid var(--accent-green);
+      padding-left:.75rem;
+    }
+    label {
+      display:block;
+      font-size:.875rem;
+      color:var(--text-secondary);
+      margin-bottom:.4rem;
+    }
+    input, textarea {
+      width:100%;
+      padding:.9rem 1rem;
+      border:1px solid var(--border);
+      border-radius:.5rem;
+      background:var(--bg-card);
+      color:var(--text-main);
+      font-size:1rem;
+    }
+    input:focus, textarea:focus {
+      outline:none;
+      border-color:var(--accent-green);
+      box-shadow:0 0 0 3px rgba(0,210,106,.15);
+    }
+    textarea {resize:vertical; min-height:100px; max-height:220px;}
+    .muted {font-size:.85rem; color:var(--text-secondary); text-align:center;}
+    button[type="submit"] {
+      margin-top:.6rem;
+      padding:1rem;
+      border:none;
+      border-radius:.5rem;
+      background:var(--accent-green);
+      color:#fff;
+      font-size:1.05rem;
+      font-weight:600;
+      cursor:pointer;
+    }
+    button[type="submit"]:hover {background:var(--accent-green-hover);}
+    .footer-note {
+      text-align:center;
+      font-size:.75rem;
+      color:var(--text-secondary);
+      margin-top:1rem;
+    }
+    .status {margin-top:.8rem; text-align:center; font-weight:500;}
+    .status.success {color:var(--success);}
+    .status.error {color:var(--error);}
+  </style>
+</head>
+<body>
+  <main class="mobile-container">
+    <header class="header-area">
+      <h1>🛠️ SOS Mechanics</h1>
+      <p>Roadside Repairs • Diagnostics • Honest Fixes</p>
+      <div class="accent-divider"></div>
+    </header>
+
+    <section class="form-area">
+      <h2>Book a Mechanic</h2>
+      <form id="booking-form" novalidate>
+        <div>
+          <label for="location">Your Location</label>
+          <input id="location" name="location" type="text" placeholder="e.g. London, Kent" required>
+        </div>
+        <div>
+          <label for="issue">Vehicle Issue</label>
+          <textarea id="issue" name="issue" placeholder="Describe what’s happening..." required maxlength="1000"></textarea>
+        </div>
+        <p class="muted">📍 Serving London & Kent • Fast response time</p>
+        <button type="submit">Confirm Booking</button>
+        <div id="form-status" class="status sr-only" role="status" aria-live="polite"></div>
+      </form>
+      <p class="footer-note">🍪 Where’s my biscuits?</p>
+    </section>
+  </main>
+
+  <script>
+    (function(){
+      const form = document.getElementById("booking-form");
+      const statusEl = document.getElementById("form-status");
+      function setStatus(msg, type=""){
+        statusEl.textContent = msg;
+        statusEl.className = `status ${type}`;
+        msg ? statusEl.classList.remove("sr-only") : statusEl.classList.add("sr-only");
+      }
+      form.addEventListener("submit", e => {
+        e.preventDefault();
+        setStatus("");
+        const loc = form.location.value.trim();
+        const issue = form.issue.value.trim();
+        if(!loc || !issue) return setStatus("Please fill in both fields.", "error");
+        setStatus("✅ Booking received — we’ll contact you shortly.", "success");
+        form.reset();
+      });
+    })();
+  </script>
+</body>
+</html>
